@@ -58,10 +58,26 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
+    @GetMapping("/test/{username}")
+    public ResponseEntity<?> testUserLookup(@PathVariable String username) {
+        try {
+            Optional<User> user = userService.findByUsername(username);
+            if (user.isPresent()) {
+                return ResponseEntity.ok("User found: " + user.get().getUsername());
+            } else {
+                return ResponseEntity.ok("User not found");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
     
+   
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody UserDTO userDTO) {
         try {
+        	System.out.println("Login attempt for user: " + userDTO.getUsername());
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword())
             );
@@ -74,6 +90,7 @@ public class UserController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+        	System.err.println("Authentication error: " + e.getMessage());
             Map<String, String> response = new HashMap<>();
             response.put("error", "Invalid username or password");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);

@@ -55,16 +55,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
             .authorizeRequests()
-                .antMatchers("/", "/api/auth/**", "/api/users/register", "/api/users/login", "/api/users/verify")
+                .antMatchers("/", "/api/auth/**", "/api/users/register", "/api/users/verify")
                     .permitAll()
                 .antMatchers("/api/elections", "/api/elections/active", "/api/elections/{electionId}")
                     .permitAll()
                 .anyRequest()
-                    .authenticated();
+                    .authenticated()
+                .and()
+            .formLogin()
+                .disable(); // Disable form login since we're using JWT
         
         // Add our custom JWT security filter
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
+
 
     
     @Bean
