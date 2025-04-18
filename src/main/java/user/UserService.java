@@ -1,6 +1,8 @@
 package user;
 
 import java.security.KeyPair;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -39,6 +41,7 @@ public class UserService {
             throw new UserException("Error registering user: " + e.getMessage(), e);
         }
     }
+
     
     public Optional<User> authenticateUser(String username, String password) {
         try {
@@ -58,6 +61,18 @@ public class UserService {
             return Optional.empty();
         } catch (SQLException e) {
             throw new UserException("Error authenticating user: " + e.getMessage(), e);
+        }
+    }
+    
+    public long countUsers() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users";
+        try (Connection conn = DatabaseService.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+            return 0;
         }
     }
     
@@ -144,5 +159,7 @@ public class UserService {
             throw new SQLException("Error mapping result set to user", e);
         }
     }
+
+
     
 }
