@@ -1,0 +1,8 @@
+{
+    "verificationToken": "3A8d7gUtrN0_jkvt8yUXfx05P7v6pi1-FmLdRgrZy6w",
+    "message": "User registered successfully"
+}
+
+{
+    "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0NTA4Njk3OCwiZXhwIjoxNzQ1MTczMzc4fQ.XmOEXbjZ8_Wgca4mtVodYXpSDIVbHOzNHP8UsPhI1D43Vz_CPTvwKuKcBHXWkaoAS0UksXFr9Na36CdByUE8DA"
+}

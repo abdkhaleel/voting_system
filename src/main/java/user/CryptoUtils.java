@@ -3,12 +3,11 @@ package user;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
-import java.util.Base64;
-
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class CryptoUtils {
+    
+    private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
     public static KeyPair generateKeyPair() {
         try {
@@ -22,23 +21,14 @@ public class CryptoUtils {
         }
     }
     
-    public static String generateSalt() {
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-        return Base64.getEncoder().encodeToString(salt);
+    // Simple BCrypt password encoding
+    public static String hashPassword(String password) {
+        return passwordEncoder.encode(password);
     }
     
-    public static String hashPassword(String password, String salt) {
-        try {
-            byte[] saltBytes = Base64.getDecoder().decode(salt);
-            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), saltBytes, 65536, 128);
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            byte[] hash = factory.generateSecret(spec).getEncoded();
-            return Base64.getEncoder().encodeToString(hash);
-        } catch (Exception e) {
-            throw new RuntimeException("Error hashing password", e);
-        }
+    // Simple BCrypt password verification
+    public static boolean matchesPassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
     
     public static byte[] sign(String data, PrivateKey privateKey) {

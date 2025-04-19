@@ -77,12 +77,19 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody UserDTO userDTO) {
         try {
-        	System.out.println("Login attempt for user: " + userDTO.getUsername());
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword())
-            );
+            System.out.println("Login attempt for user: " + userDTO.getUsername());
             
+            // Create authentication token
+            UsernamePasswordAuthenticationToken authToken = 
+                new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword());
+            
+            // Authenticate
+            Authentication authentication = authenticationManager.authenticate(authToken);
+            
+            // Set authentication in context
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            // Generate JWT token
             String jwt = tokenProvider.generateToken(authentication);
             
             Map<String, String> response = new HashMap<>();
@@ -90,12 +97,15 @@ public class UserController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-        	System.err.println("Authentication error: " + e.getMessage());
+            System.err.println("Authentication error: " + e.getMessage());
+            e.printStackTrace();
+            
             Map<String, String> response = new HashMap<>();
             response.put("error", "Invalid username or password");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
+
     
     @GetMapping("/verify")
     public ResponseEntity<?> verifyUser(@RequestParam String token) {

@@ -16,31 +16,37 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(
-    securedEnabled = true,
-    jsr250Enabled = true,
-    prePostEnabled = true
-)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
-    
+
     @Autowired
     private JwtAuthenticationEntryPoint unauthorizedHandler;
     
+    @Autowired
+    private CustomAuthenticationProvider authProvider;
+
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter();
     }
-    
+
     @Override
-    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder
-            .userDetailsService(userDetailsService)
-            .passwordEncoder(passwordEncoder());
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // Use our custom authentication provider
+        auth.authenticationProvider(authProvider);
     }
-    
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -55,29 +61,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
             .authorizeRequests()
-                .antMatchers("/**", "/api/auth/**", "/api/users/register", "/api/users/login", "/api/users/verify")
+                .antMatchers("/api/auth/**", "/api/users/register", "/api/users/login", "/api/users/verify")
                     .permitAll()
-                .antMatchers("/api/users/test/**", "/api/users/test-password/**") // Add this line
-                    .permitAll()
-                .antMatchers("/api/elections", "/api/elections/active", "/api/elections/{electionId}")
+                .antMatchers("/api/test/**")
                     .permitAll()
                 .anyRequest()
                     .authenticated();
         
+        // Add our custom JWT security filter
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-    }
-
-
-
-    
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
     }
 }

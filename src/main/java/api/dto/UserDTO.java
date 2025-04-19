@@ -19,6 +19,7 @@ public class UserDTO {
     private String password;
     
     // Getters and setters
+    
     public String getUsername() {
         return username;
     }
