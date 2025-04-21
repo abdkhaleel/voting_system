@@ -4,5 +4,5 @@
 }
 
 {
-    "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0NTA4Njk3OCwiZXhwIjoxNzQ1MTczMzc4fQ.XmOEXbjZ8_Wgca4mtVodYXpSDIVbHOzNHP8UsPhI1D43Vz_CPTvwKuKcBHXWkaoAS0UksXFr9Na36CdByUE8DA"
+    "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0NTIzNzM0MSwiZXhwIjoxNzQ1MzIzNzQxfQ.OV5H-iXQYjMAOn58nUBpX1A-cGKs2drkve6tEUgUiAsvkAEmRJyU1kviIMnTbX1BND5AkS0GNLlTw9Heb6wgVg"
 }

@@ -1,0 +1,11 @@
+{
+    "id": "948c5c57-4d80-4fb8-ace8-40c3f23735ec",
+    "title": "Presidential Election 2023",
+    "description": "Election for the next president",
+    "startDate": "2023-11-01T08:00:00",
+    "endDate": "2023-11-08T20:00:00",
+    "active": false,
+    "candidates": [],
+    "eligibleVoterIds": [],
+    "votedVoterIds": []
+}

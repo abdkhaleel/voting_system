@@ -18,6 +18,17 @@ public class Election implements Serializable {
     private List<Candidate> candidates;
     private List<String> eligibleVoterIds;
     private List<String> votedVoterIds;
+//    public Election(String title, String description, LocalDateTime startDate, LocalDateTime endDate, boolean active) {
+//    	this.id = UUID.randomUUID().toString();
+//    	this.title = title;
+//    	this.description = description;
+//    	this.startDate = startDate;
+//    	this.endDate = endDate;
+//    	this.active = active;
+//    	this.candidates = new ArrayList<>();
+//    	this.eligibleVoterIds = new ArrayList<>();
+//    	this.votedVoterIds = new ArrayList<>();
+//    }
     
     public Election(String title, String description, LocalDateTime startDate, LocalDateTime endDate) {
         this.id = UUID.randomUUID().toString();
@@ -30,6 +41,7 @@ public class Election implements Serializable {
         this.eligibleVoterIds = new ArrayList<>();
         this.votedVoterIds = new ArrayList<>();
     }
+    
     
     public void addCandidate(Candidate candidate) {
         candidates.add(candidate);

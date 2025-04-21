@@ -1,0 +1,12 @@
+{
+    "verificationToken": "w-8AojuY3F67bsascnRnFzRve-RsO7vhWi9tQMQvFZQ",
+    "message": "User registered successfully"
+}
+{
+  "username": "testuser",
+  "email": "testuser@example.com",
+  "password": "password123"
+}
+{
+    "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc0NTIzNjc5OSwiZXhwIjoxNzQ1MzIzMTk5fQ.EHLs0i52vtLd31RtXQpfARiat53Y6KqLSO8V_lq-DDEW9QUmLi6hd_p2hVGIQokE5eIwYtMXrOaQg1mkx9q0Lg"
+}

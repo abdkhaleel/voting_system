@@ -3,5 +3,5 @@
     "message": "User registered successfully"
 }
 {
-    "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJraGFsZWVsIiwiaWF0IjoxNzQ1MDg3MTQ5LCJleHAiOjE3NDUxNzM1NDl9.lYFo-k_W9MrLOEm-CA2BQJGDCgZ3-emYPoaEaduC6hZmObz-ESd354EJr_GQHZG-3fIwyAaUHrxWtt72nPQ2xw"
+    "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJraGFsZWVsIiwiaWF0IjoxNzQ1MjQxNzgyLCJleHAiOjE3NDUzMjgxODJ9.3398Xb6kHXTgZHuksaxEuDJVrH4qCoTJcIIIcUjub44fqwdtVBRYVKcLqoLwuqpibwzzcShdqc9HaXgOOw8jTQ"
 }

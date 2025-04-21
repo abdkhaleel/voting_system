@@ -3,6 +3,7 @@ package voting;
 import blockchain.*;
 import user.User;
 import user.CryptoUtils;
+import user.DatabaseService;
 import exception.VotingException;
 
 import java.time.LocalDateTime;
@@ -14,14 +15,37 @@ public class VotingSystem {
     private final Blockchain blockchain;
     private final ElectionManager electionManager;
     private final AuditLog auditLog;
+    private final CandidateService candidateService;
     
-    public VotingSystem() {
+    public VotingSystem(DatabaseService dbService) {
         this.blockchain = new Blockchain(4); // Difficulty level 4
-        this.electionManager = new ElectionManager();
         this.auditLog = new AuditLog();
+        this.electionManager = new ElectionManager(dbService, auditLog);
+        this.candidateService = new CandidateService(dbService);
         
-        // Load existing elections
-        electionManager.loadElections();
+        // Load blockchain from storage if available
+        try {
+            Blockchain loadedChain = BlockchainPersistence.loadBlockchain("blockchain.dat");
+            if (loadedChain != null) {
+                // Copy the loaded chain's properties to our blockchain instance
+                java.lang.reflect.Field chainField = Blockchain.class.getDeclaredField("chain");
+                chainField.setAccessible(true);
+                chainField.set(blockchain, loadedChain.getChain());
+                
+                java.lang.reflect.Field pendingTransactionsField = Blockchain.class.getDeclaredField("pendingTransactions");
+                pendingTransactionsField.setAccessible(true);
+                pendingTransactionsField.set(blockchain, loadedChain.getPendingTransactions());
+                
+                java.lang.reflect.Field difficultyField = Blockchain.class.getDeclaredField("difficulty");
+                difficultyField.setAccessible(true);
+                difficultyField.set(blockchain, loadedChain.getDifficulty());
+                
+                auditLog.logEvent("Blockchain loaded from storage");
+            }
+        } catch (Exception e) {
+            auditLog.logEvent("Failed to load blockchain: " + e.getMessage());
+            // Continue with a new blockchain
+        }
     }
     
     public Election createElection(String title, String description, LocalDateTime startDate, LocalDateTime endDate) {
@@ -30,33 +54,39 @@ public class VotingSystem {
         return election;
     }
     
-    public void addCandidateToElection(String electionId, Candidate candidate) {
+    public void addCandidateToElection(String electionId, String name, String party, String position) {
+        // First check if the election exists
         Optional<Election> electionOpt = electionManager.getElection(electionId);
         
-        if (electionOpt.isPresent()) {
-            Election election = electionOpt.get();
-            election.addCandidate(candidate);
-            electionManager.updateElection(election);
-            auditLog.logEvent("Candidate added to election: " + candidate.getId());
-        } else {
+        if (electionOpt.isEmpty()) {
             throw new VotingException("Election not found: " + electionId);
         }
+        
+        // Create the candidate
+        Candidate candidate = candidateService.createCandidate(electionId, name, party, position);
+        auditLog.logEvent("Candidate added to election: " + candidate.getId());
+    }
+    
+    public void updateCandidate(Candidate candidate, String electionId) {
+        candidateService.updateCandidate(candidate, electionId);
+        auditLog.logEvent("Candidate updated: " + candidate.getId());
+    }
+    
+    public void removeCandidate(String candidateId, String electionId) {
+        candidateService.deleteCandidate(candidateId, electionId);
+        auditLog.logEvent("Candidate removed: " + candidateId);
     }
     
     public void addEligibleVoter(String electionId, String voterId) {
-        Optional<Election> electionOpt = electionManager.getElection(electionId);
-        
-        if (electionOpt.isPresent()) {
-            Election election = electionOpt.get();
-            election.addEligibleVoter(voterId);
-            electionManager.updateElection(election);
-            auditLog.logEvent("Voter added to eligible list: " + voterId);
-        } else {
-            throw new VotingException("Election not found: " + electionId);
-        }
+        electionManager.addEligibleVoter(electionId, voterId);
+    }
+    
+    public void removeEligibleVoter(String electionId, String voterId) {
+        electionManager.removeEligibleVoter(electionId, voterId);
     }
     
     public void castVote(String electionId, String candidateId, User voter) {
+        // Check if election exists
         Optional<Election> electionOpt = electionManager.getElection(electionId);
         
         if (electionOpt.isEmpty()) {
@@ -64,27 +94,25 @@ public class VotingSystem {
         }
         
         Election election = electionOpt.get();
-        
+        System.out.println("Caste vote method check " + election.isActive());
         // Check if election is active
         if (!election.isActive()) {
             throw new VotingException("Election is not active");
         }
         
         // Check if voter is eligible
-        if (!election.isVoterEligible(voter.getId())) {
+        if (!electionManager.isVoterEligible(electionId, voter.getId())) {
             throw new VotingException("Voter is not eligible for this election");
         }
         
         // Check if voter has already voted
-        if (election.hasVoterVoted(voter.getId())) {
+        if (electionManager.hasVoterVoted(electionId, voter.getId())) {
             throw new VotingException("Voter has already cast a vote in this election");
         }
         
         // Check if candidate exists
-        boolean candidateExists = election.getCandidates().stream()
-                .anyMatch(c -> c.getId().equals(candidateId));
-        
-        if (!candidateExists) {
+        Optional<Candidate> candidateOpt = candidateService.getCandidate(candidateId);
+        if (candidateOpt.isEmpty()) {
             throw new VotingException("Candidate not found: " + candidateId);
         }
         
@@ -98,20 +126,22 @@ public class VotingSystem {
         // Add transaction to blockchain
         blockchain.addTransaction(voteTransaction);
         
+        // Mark voter as having voted
+        electionManager.markVoterAsVoted(electionId, voter.getId());
+        
         // Mine pending transactions if there are enough
         if (blockchain.getPendingTransactions().size() >= 5) {
             blockchain.minePendingTransactions();
+            // Save blockchain after mining
+            saveBlockchain();
         }
-        
-        // Mark voter as having voted
-        election.markVoterAsVoted(voter.getId());
-        electionManager.updateElection(election);
         
         // Log the vote
         auditLog.logEvent("Vote cast by voter: " + voter.getId() + " in election: " + electionId);
     }
     
     public ElectionResults getElectionResults(String electionId) {
+        // Check if election exists
         Optional<Election> electionOpt = electionManager.getElection(electionId);
         
         if (electionOpt.isEmpty()) {
@@ -138,46 +168,90 @@ public class VotingSystem {
             }
         }
         
+        // Also count votes from pending transactions
+        for (Transaction transaction : blockchain.getPendingTransactions()) {
+            if (transaction instanceof VoteTransaction) {
+                VoteTransaction voteTransaction = (VoteTransaction) transaction;
+                
+                if (voteTransaction.getElectionId().equals(electionId)) {
+                    results.countVote(voteTransaction.getCandidateId());
+                }
+            }
+        }
+        
         auditLog.logEvent("Election results generated for: " + electionId);
         return results;
     }
     
     public void activateElection(String electionId) {
-        Optional<Election> electionOpt = electionManager.getElection(electionId);
-        
-        if (electionOpt.isPresent()) {
-            Election election = electionOpt.get();
-            election.activate();
-            electionManager.updateElection(election);
-            auditLog.logEvent("Election activated: " + electionId);
-        } else {
-            throw new VotingException("Election not found: " + electionId);
-        }
+        electionManager.activateElection(electionId);
     }
     
     public void deactivateElection(String electionId) {
-        Optional<Election> electionOpt = electionManager.getElection(electionId);
-        
-        if (electionOpt.isPresent()) {
-            Election election = electionOpt.get();
-            election.deactivate();
-            electionManager.updateElection(election);
-            auditLog.logEvent("Election deactivated: " + electionId);
-        } else {
-            throw new VotingException("Election not found: " + electionId);
+        electionManager.deactivateElection(electionId);
+    }
+    
+    public void saveBlockchain() {
+        try {
+            BlockchainPersistence.saveBlockchain(blockchain, "blockchain.dat");
+            auditLog.logEvent("Blockchain saved to storage");
+        } catch (Exception e) {
+            auditLog.logEvent("Failed to save blockchain: " + e.getMessage());
+            throw new VotingException("Failed to save blockchain: " + e.getMessage());
         }
     }
     
-    public void saveBlockchain(String filePath) {
-        BlockchainPersistence.saveBlockchain(blockchain, filePath);
-        auditLog.logEvent("Blockchain saved to: " + filePath);
+    public void loadBlockchain() {
+        try {
+            Blockchain loadedChain = BlockchainPersistence.loadBlockchain("blockchain.dat");
+            if (loadedChain != null) {
+                // Copy the loaded chain's properties to our blockchain instance
+                java.lang.reflect.Field chainField = Blockchain.class.getDeclaredField("chain");
+                chainField.setAccessible(true);
+                chainField.set(blockchain, loadedChain.getChain());
+                
+                java.lang.reflect.Field pendingTransactionsField = Blockchain.class.getDeclaredField("pendingTransactions");
+                pendingTransactionsField.setAccessible(true);
+                pendingTransactionsField.set(blockchain, loadedChain.getPendingTransactions());
+                
+                java.lang.reflect.Field difficultyField = Blockchain.class.getDeclaredField("difficulty");
+                difficultyField.setAccessible(true);
+                difficultyField.set(blockchain, loadedChain.getDifficulty());
+                
+                auditLog.logEvent("Blockchain loaded from storage");
+            }
+        } catch (Exception e) {
+            auditLog.logEvent("Failed to load blockchain: " + e.getMessage());
+            throw new VotingException("Failed to load blockchain: " + e.getMessage());
+        }
     }
     
-    public void loadBlockchain(String filePath) {
-        Blockchain loadedBlockchain = BlockchainPersistence.loadBlockchain(filePath);
-        // You might want to implement a proper way to replace the current blockchain
-        // This is simplified
-        auditLog.logEvent("Blockchain loaded from: " + filePath);
+    public List<Election> getAllElections() {
+        return electionManager.getAllElections();
+    }
+    
+    public List<Election> getActiveElections() {
+        return electionManager.getActiveElections();
+    }
+    
+    public Optional<Election> getElection(String electionId) {
+        return electionManager.getElection(electionId);
+    }
+    
+    public List<Candidate> getCandidatesForElection(String electionId) {
+        return candidateService.getCandidatesForElection(electionId);
+    }
+    
+    public Optional<Candidate> getCandidate(String candidateId) {
+        return candidateService.getCandidate(candidateId);
+    }
+    
+    public boolean isVoterEligible(String electionId, String voterId) {
+        return electionManager.isVoterEligible(electionId, voterId);
+    }
+    
+    public boolean hasVoterVoted(String electionId, String voterId) {
+        return electionManager.hasVoterVoted(electionId, voterId);
     }
     
     // Getters
@@ -192,4 +266,15 @@ public class VotingSystem {
     public AuditLog getAuditLog() {
         return auditLog;
     }
+    
+    public boolean validateBlockchain() {
+        return blockchain.isChainValid();
+    }
+    
+    public void mineBlockchain() {
+        blockchain.minePendingTransactions();
+        saveBlockchain();
+        auditLog.logEvent("Blockchain mined and saved");
+    }
 }
+

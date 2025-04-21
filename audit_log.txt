@@ -1,0 +1,53 @@
+[2025-04-20 18:30:30] Election created: aa41f690-75f7-4a64-b647-93745f9ef0d5
+[2025-04-20 18:31:53] Candidate added to election: ee6f36ca-5bcd-4b61-9204-5e79b3c58a81
+[2025-04-20 19:24:48] Voter added to eligible list: f05a5145-6a14-4e64-a108-9127dce67f03
+[2025-04-20 19:27:12] Election activated: aa41f690-75f7-4a64-b647-93745f9ef0d5
+[2025-04-20 19:33:05] Candidate added to election: f53c2419-0e10-45b7-88e1-1770c2a3eb30
+[2025-04-20 19:36:08] Election activated: aa41f690-75f7-4a64-b647-93745f9ef0d5
+[2025-04-21 17:28:04] Blockchain loaded from storage
+[2025-04-21 17:28:07] Blockchain loaded from storage
+[2025-04-21 17:28:09] Blockchain loaded from storage
+[2025-04-21 17:40:18] Election created: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 17:40:18] Election created: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 17:44:30] Election updated: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 17:45:18] Election activated: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 17:45:42] Election deactivated: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 17:45:55] Election activated: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 17:47:24] Candidate added to election: c0e8a37c-5d5d-4174-9947-8124e27a0cdd
+[2025-04-21 17:50:16] Candidate added to election: c7082e6f-9ca0-4280-b96c-c0abb221a57b
+[2025-04-21 17:54:03] Voter 18a68817-a76e-449c-913c-19c42578bd4a added as eligible for election 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 17:54:49] Voter f05a5145-6a14-4e64-a108-9127dce67f03 added as eligible for election 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 17:55:32] Voter f05a5145-6a14-4e64-a108-9127dce67f03 removed from eligible list for election 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 17:55:44] Voter f05a5145-6a14-4e64-a108-9127dce67f03 added as eligible for election 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 18:21:16] Blockchain loaded from storage
+[2025-04-21 18:21:19] Blockchain loaded from storage
+[2025-04-21 18:21:23] Blockchain loaded from storage
+[2025-04-21 18:30:04] Blockchain loaded from storage
+[2025-04-21 18:30:04] Blockchain loaded from storage
+[2025-04-21 18:30:06] Blockchain loaded from storage
+[2025-04-21 18:30:16] Blockchain loaded from storage
+[2025-04-21 18:30:17] Blockchain loaded from storage
+[2025-04-21 18:30:18] Blockchain loaded from storage
+[2025-04-21 18:31:23] Blockchain loaded from storage
+[2025-04-21 18:31:24] Blockchain loaded from storage
+[2025-04-21 18:31:26] Blockchain loaded from storage
+[2025-04-21 18:39:03] Blockchain loaded from storage
+[2025-04-21 18:39:03] Blockchain loaded from storage
+[2025-04-21 18:39:08] Blockchain loaded from storage
+[2025-04-21 18:40:41] Blockchain loaded from storage
+[2025-04-21 18:40:41] Blockchain loaded from storage
+[2025-04-21 18:40:45] Blockchain loaded from storage
+[2025-04-21 18:44:12] Blockchain loaded from storage
+[2025-04-21 18:44:12] Blockchain loaded from storage
+[2025-04-21 18:44:14] Blockchain loaded from storage
+[2025-04-21 18:47:45] Blockchain loaded from storage
+[2025-04-21 18:47:46] Blockchain loaded from storage
+[2025-04-21 18:47:48] Blockchain loaded from storage
+[2025-04-21 18:48:30] Blockchain loaded from storage
+[2025-04-21 18:48:31] Blockchain loaded from storage
+[2025-04-21 18:48:33] Blockchain loaded from storage
+[2025-04-21 18:48:43] Voter 18a68817-a76e-449c-913c-19c42578bd4a marked as voted in election 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 18:48:43] Vote cast by voter: 18a68817-a76e-449c-913c-19c42578bd4a in election: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 18:54:56] Voter f05a5145-6a14-4e64-a108-9127dce67f03 marked as voted in election 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 18:54:56] Vote cast by voter: f05a5145-6a14-4e64-a108-9127dce67f03 in election: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-04-21 18:57:19] Election results generated for: 948c5c57-4d80-4fb8-ace8-40c3f23735ec

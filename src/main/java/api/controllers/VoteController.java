@@ -1,106 +1,116 @@
 package api.controllers;
 
+import api.dto.ApiResponse;
 import api.dto.VoteDTO;
+import exception.VotingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import user.DatabaseService;
 import user.User;
 import user.UserService;
-import voting.ElectionResults;
+import voting.Election;
 import voting.VotingSystem;
 
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
+import java.security.Principal;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/votes")
 public class VoteController {
-    
+
     private final VotingSystem votingSystem;
     private final UserService userService;
-    
+
     @Autowired
-    public VoteController(VotingSystem votingSystem, UserService userService) {
-        this.votingSystem = votingSystem;
+    public VoteController(DatabaseService databaseService, UserService userService) {
+        this.votingSystem = new VotingSystem(databaseService);
         this.userService = userService;
     }
-    
+
     @PostMapping
-    public ResponseEntity<?> castVote(@Valid @RequestBody VoteDTO voteDTO, Authentication authentication) {
-        if (authentication == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        
+    public ResponseEntity<ApiResponse> castVote(@RequestBody VoteDTO voteDTO, Principal principal) {
         try {
-            Optional<User> userOpt = userService.findByUsername(authentication.getName());
+            // Get the current user
+            Optional<User> userOpt = userService.findByUsername(principal.getName());
+            System.out.println(principal.getName());            
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse(false, "User not found"));
+            }
+            
+            User user = userOpt.get();
+            // Get the election
+            Optional<Election> electionOpt = votingSystem.getElection(voteDTO.getElectionId());
+            
+            if (electionOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse(false, "Election not found"));
+            }
+            
+            // Cast the vote
+            votingSystem.castVote(voteDTO.getElectionId(), voteDTO.getCandidateId(), user);
+            
+            return ResponseEntity.ok(new ApiResponse(true, "Vote cast successfully"));
+        } catch (VotingException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse(false, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(false, "An error occurred while casting vote: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/check/{electionId}")
+    public ResponseEntity<?> checkVoteStatus(@PathVariable String electionId, Principal principal) {
+        try {
+            // Get the current user
+            Optional<User> userOpt = userService.findByUsername(principal.getName());
             
             if (userOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse(false, "User not found"));
             }
             
-            User voter = userOpt.get();
+            User user = userOpt.get();
             
-            votingSystem.castVote(voteDTO.getElectionId(), voteDTO.getCandidateId(), voter);
+            // Get the election
+            Optional<Election> electionOpt = votingSystem.getElection(electionId);
             
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Vote cast successfully");
+            if (electionOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse(false, "Election not found"));
+            }
             
-            return ResponseEntity.ok(response);
+            boolean hasVoted = votingSystem.hasVoterVoted(electionId, user.getId());
+            boolean isEligible = votingSystem.isVoterEligible(electionId, user.getId());
+            
+            VoteStatus status = new VoteStatus(isEligible, hasVoted);
+            
+            return ResponseEntity.ok(status);
         } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(false, "An error occurred while checking vote status: " + e.getMessage()));
         }
     }
     
-    @GetMapping("/results/{electionId}")
-    public ResponseEntity<?> getElectionResults(@PathVariable String electionId) {
-        try {
-            ElectionResults results = votingSystem.getElectionResults(electionId);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("electionId", electionId);
-            response.put("totalVotes", results.getTotalVotes());
-            response.put("voteCounts", results.getVoteCounts());
-            response.put("percentages", results.getVotePercentages());
-            
-            if (results.getWinningCandidate() != null) {
-                response.put("winner", results.getWinningCandidate().getName());
-            }
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    // Helper class for vote status response
+    public static class VoteStatus {
+        private final boolean eligible;
+        private final boolean hasVoted;
+        
+        public VoteStatus(boolean eligible, boolean hasVoted) {
+            this.eligible = eligible;
+            this.hasVoted = hasVoted;
         }
-    }
-    
-    @GetMapping("/verify/{electionId}")
-    public ResponseEntity<?> verifyElectionResults(@PathVariable String electionId) {
-        try {
-            // Verify blockchain integrity
-            boolean isValid = votingSystem.getBlockchain().isChainValid();
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("electionId", electionId);
-            response.put("blockchainValid", isValid);
-            
-            if (isValid) {
-                response.put("message", "Election results are verified and blockchain integrity is confirmed");
-            } else {
-                response.put("message", "Blockchain integrity check failed. Results may be compromised");
-            }
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        
+        public boolean isEligible() {
+            return eligible;
+        }
+        
+        public boolean isHasVoted() {
+            return hasVoted;
         }
     }
 }

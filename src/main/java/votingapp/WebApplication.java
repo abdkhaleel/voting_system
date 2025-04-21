@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import user.DatabaseService;
 import user.UserService;
 import user.VerificationService;
 import voting.VotingSystem;
@@ -17,6 +18,11 @@ public class WebApplication {
     }
     
     @Bean
+    public DatabaseService databaseService() {
+        return new DatabaseService();
+    }
+    
+    @Bean
     public UserService userService() {
         return new UserService();
     }
@@ -27,7 +33,7 @@ public class WebApplication {
     }
     
     @Bean
-    public VotingSystem votingSystem() {
-        return new VotingSystem();
+    public VotingSystem votingSystem(DatabaseService databaseService) {
+        return new VotingSystem(databaseService);
     }
 }

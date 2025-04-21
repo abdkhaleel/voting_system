@@ -1,0 +1,156 @@
+.
+├── audit_log.txt
+├── elections.dat
+├── pom.xml
+├── project_structure.txt
+├── README.md
+├── src
+│   └── main
+│       ├── java
+│       │   ├── api
+│       │   │   ├── controllers
+│       │   │   │   ├── AuthController.java
+│       │   │   │   ├── CandidateController.java
+│       │   │   │   ├── ElectionController.java
+│       │   │   │   ├── package-info.java
+│       │   │   │   ├── TestController.java
+│       │   │   │   ├── UserController.java
+│       │   │   │   ├── VoteController.java
+│       │   │   │   └── WelcomeController.java
+│       │   │   ├── dto
+│       │   │   │   ├── ApiResponse.java
+│       │   │   │   ├── CandidateDTO.java
+│       │   │   │   ├── JwtAuthenticationResponse.java
+│       │   │   │   ├── LoginRequest.java
+│       │   │   │   ├── package-info.java
+│       │   │   │   ├── UserDTO.java
+│       │   │   │   └── VoteDTO.java
+│       │   │   └── security
+│       │   │       ├── CustomAuthenticationProvider.java
+│       │   │       ├── CustomUserDetailsService.java
+│       │   │       ├── JwtAuthenticationEntryPoint.java
+│       │   │       ├── JwtAuthenticationFilter.java
+│       │   │       ├── JwtTokenProvider.java
+│       │   │       ├── package-info.java
+│       │   │       ├── PasswordService.java
+│       │   │       └── WebSecurityConfig.java
+│       │   ├── blockchain
+│       │   │   ├── Blockchain.java
+│       │   │   ├── BlockchainPersistence.java
+│       │   │   ├── Block.java
+│       │   │   ├── ConsensusManager.java
+│       │   │   ├── package-info.java
+│       │   │   ├── Transaction.java
+│       │   │   └── VoteTransaction.java
+│       │   ├── exception
+│       │   │   ├── BlockchainException.java
+│       │   │   ├── GlobalExceptionHandler.java
+│       │   │   ├── package-info.java
+│       │   │   ├── UserException.java
+│       │   │   └── VotingException.java
+│       │   ├── user
+│       │   │   ├── CryptoUtils.java
+│       │   │   ├── DatabaseService.java
+│       │   │   ├── KeyPairUtils.java
+│       │   │   ├── package-info.java
+│       │   │   ├── User.java
+│       │   │   ├── UserService.java
+│       │   │   └── VerificationService.java
+│       │   ├── voting
+│       │   │   ├── AuditLog.java
+│       │   │   ├── Candidate.java
+│       │   │   ├── CandidateService.java
+│       │   │   ├── Election.java
+│       │   │   ├── ElectionManager.java
+│       │   │   ├── ElectionResults.java
+│       │   │   ├── package-info.java
+│       │   │   └── VotingSystem.java
+│       │   └── votingapp
+│       │       ├── package-info.java
+│       │       └── WebApplication.java
+│       └── resources
+│           ├── admin_token.txt
+│           ├── application.properties
+│           ├── db
+│           │   └── schema.sql
+│           └── khaleel_token.txt
+└── target
+    └── classes
+        ├── admin_token.txt
+        ├── api
+        │   ├── controllers
+        │   │   ├── AuthController.class
+        │   │   ├── CandidateController.class
+        │   │   ├── ElectionController.class
+        │   │   ├── package-info.class
+        │   │   ├── TestController.class
+        │   │   ├── UserController.class
+        │   │   ├── VoteController.class
+        │   │   └── WelcomeController.class
+        │   ├── dto
+        │   │   ├── ApiResponse.class
+        │   │   ├── CandidateDTO.class
+        │   │   ├── JwtAuthenticationResponse.class
+        │   │   ├── LoginRequest.class
+        │   │   ├── package-info.class
+        │   │   ├── UserDTO.class
+        │   │   └── VoteDTO.class
+        │   └── security
+        │       ├── CustomAuthenticationProvider.class
+        │       ├── CustomUserDetailsService.class
+        │       ├── JwtAuthenticationEntryPoint.class
+        │       ├── JwtAuthenticationFilter.class
+        │       ├── JwtTokenProvider.class
+        │       ├── package-info.class
+        │       ├── PasswordService.class
+        │       └── WebSecurityConfig.class
+        ├── application.properties
+        ├── blockchain
+        │   ├── Blockchain.class
+        │   ├── BlockchainPersistence.class
+        │   ├── Block.class
+        │   ├── ConsensusManager.class
+        │   ├── package-info.class
+        │   ├── Transaction.class
+        │   └── VoteTransaction.class
+        ├── db
+        │   └── schema.sql
+        ├── exception
+        │   ├── BlockchainException.class
+        │   ├── GlobalExceptionHandler.class
+        │   ├── package-info.class
+        │   ├── UserException.class
+        │   └── VotingException.class
+        ├── khaleel_token.txt
+        ├── META-INF
+        │   ├── MANIFEST.MF
+        │   └── maven
+        │       └── com.example
+        │           └── blockchain-voting-system
+        │               ├── pom.properties
+        │               └── pom.xml
+        ├── user
+        │   ├── CryptoUtils.class
+        │   ├── DatabaseService$ResultSetMapper.class
+        │   ├── DatabaseService.class
+        │   ├── KeyPairUtils.class
+        │   ├── package-info.class
+        │   ├── User.class
+        │   ├── UserService.class
+        │   ├── VerificationService$VerificationToken.class
+        │   └── VerificationService.class
+        ├── voting
+        │   ├── AuditLog$LogEntry.class
+        │   ├── AuditLog.class
+        │   ├── Candidate.class
+        │   ├── CandidateService.class
+        │   ├── Election.class
+        │   ├── ElectionManager.class
+        │   ├── ElectionResults.class
+        │   ├── package-info.class
+        │   └── VotingSystem.class
+        └── votingapp
+            ├── package-info.class
+            └── WebApplication.class
+
+31 directories, 123 files
