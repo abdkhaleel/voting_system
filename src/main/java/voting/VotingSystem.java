@@ -16,44 +16,54 @@ public class VotingSystem {
     private final ElectionManager electionManager;
     private final AuditLog auditLog;
     private final CandidateService candidateService;
+    private final BlockchainPersistence blockchainPersistence;
     
     public VotingSystem(DatabaseService dbService) {
-        this.blockchain = new Blockchain(4); // Difficulty level 4
         this.auditLog = new AuditLog();
         this.electionManager = new ElectionManager(dbService, auditLog);
+        this.blockchainPersistence = new BlockchainPersistence(dbService);
+        this.blockchain = blockchainPersistence.loadBlockchain();
         this.candidateService = new CandidateService(dbService);
         
-        // Load blockchain from storage if available
-        try {
-            Blockchain loadedChain = BlockchainPersistence.loadBlockchain("blockchain.dat");
-            if (loadedChain != null) {
-                // Copy the loaded chain's properties to our blockchain instance
-                java.lang.reflect.Field chainField = Blockchain.class.getDeclaredField("chain");
-                chainField.setAccessible(true);
-                chainField.set(blockchain, loadedChain.getChain());
-                
-                java.lang.reflect.Field pendingTransactionsField = Blockchain.class.getDeclaredField("pendingTransactions");
-                pendingTransactionsField.setAccessible(true);
-                pendingTransactionsField.set(blockchain, loadedChain.getPendingTransactions());
-                
-                java.lang.reflect.Field difficultyField = Blockchain.class.getDeclaredField("difficulty");
-                difficultyField.setAccessible(true);
-                difficultyField.set(blockchain, loadedChain.getDifficulty());
-                
-                auditLog.logEvent("Blockchain loaded from storage");
-            }
-        } catch (Exception e) {
-            auditLog.logEvent("Failed to load blockchain: " + e.getMessage());
-            // Continue with a new blockchain
-        }
+        auditLog.logEvent("VotingSystem initialized with database-backed blockchain");
     }
     
+    // Election Management
     public Election createElection(String title, String description, LocalDateTime startDate, LocalDateTime endDate) {
         Election election = electionManager.createElection(title, description, startDate, endDate);
         auditLog.logEvent("Election created: " + election.getId());
         return election;
     }
     
+    public Election createElection(String title, String description, String startDateStr, String endDateStr) {
+    	LocalDateTime startDate = LocalDateTime.parse(startDateStr);
+        LocalDateTime endDate = LocalDateTime.parse(endDateStr);
+    	return electionManager.createElection(title, description, startDate, endDate);
+    }
+    
+    public List<Election> getAllElections() {
+        return electionManager.getAllElections();
+    }
+    
+    public List<Election> getActiveElections() {
+        return electionManager.getActiveElections();
+    }
+    
+    public Optional<Election> getElection(String electionId) {
+        return electionManager.getElection(electionId);
+    }
+    
+    public void activateElection(String electionId) {
+        electionManager.activateElection(electionId);
+        auditLog.logEvent("Election activated: " + electionId);
+    }
+    
+    public void deactivateElection(String electionId) {
+        electionManager.deactivateElection(electionId);
+        auditLog.logEvent("Election deactivated: " + electionId);
+    }
+    
+    // Candidate Management
     public void addCandidateToElection(String electionId, String name, String party, String position) {
         // First check if the election exists
         Optional<Election> electionOpt = electionManager.getElection(electionId);
@@ -77,14 +87,34 @@ public class VotingSystem {
         auditLog.logEvent("Candidate removed: " + candidateId);
     }
     
+    public List<Candidate> getCandidatesForElection(String electionId) {
+        return candidateService.getCandidatesForElection(electionId);
+    }
+    
+    public Optional<Candidate> getCandidate(String candidateId) {
+        return candidateService.getCandidate(candidateId);
+    }
+    
+    // Voter Management
     public void addEligibleVoter(String electionId, String voterId) {
         electionManager.addEligibleVoter(electionId, voterId);
+        auditLog.logEvent("Voter added to election: " + voterId);
     }
     
     public void removeEligibleVoter(String electionId, String voterId) {
         electionManager.removeEligibleVoter(electionId, voterId);
+        auditLog.logEvent("Voter removed from election: " + voterId);
     }
     
+    public boolean isVoterEligible(String electionId, String voterId) {
+        return electionManager.isVoterEligible(electionId, voterId);
+    }
+    
+    public boolean hasVoterVoted(String electionId, String voterId) {
+        return electionManager.hasVoterVoted(electionId, voterId);
+    }
+    
+    // Voting Process
     public void castVote(String electionId, String candidateId, User voter) {
         // Check if election exists
         Optional<Election> electionOpt = electionManager.getElection(electionId);
@@ -94,7 +124,7 @@ public class VotingSystem {
         }
         
         Election election = electionOpt.get();
-        System.out.println("Caste vote method check " + election.isActive());
+        
         // Check if election is active
         if (!election.isActive()) {
             throw new VotingException("Election is not active");
@@ -133,13 +163,17 @@ public class VotingSystem {
         if (blockchain.getPendingTransactions().size() >= 5) {
             blockchain.minePendingTransactions();
             // Save blockchain after mining
-            saveBlockchain();
+            saveBlockchainState();
         }
         
         // Log the vote
         auditLog.logEvent("Vote cast by voter: " + voter.getId() + " in election: " + electionId);
+        
+        // Save the blockchain state after adding the transaction
+        saveBlockchainState();
     }
     
+    // Results and Blockchain Management
     public ElectionResults getElectionResults(String electionId) {
         // Check if election exists
         Optional<Election> electionOpt = electionManager.getElection(electionId);
@@ -183,75 +217,25 @@ public class VotingSystem {
         return results;
     }
     
-    public void activateElection(String electionId) {
-        electionManager.activateElection(electionId);
+    public void mineBlockchain() {
+        blockchain.minePendingTransactions();
+        saveBlockchainState();
+        auditLog.logEvent("Blockchain mined and saved");
     }
     
-    public void deactivateElection(String electionId) {
-        electionManager.deactivateElection(electionId);
+    public boolean validateBlockchain() {
+        return blockchain.isChainValid();
     }
     
-    public void saveBlockchain() {
-        try {
-            BlockchainPersistence.saveBlockchain(blockchain, "blockchain.dat");
-            auditLog.logEvent("Blockchain saved to storage");
-        } catch (Exception e) {
-            auditLog.logEvent("Failed to save blockchain: " + e.getMessage());
-            throw new VotingException("Failed to save blockchain: " + e.getMessage());
-        }
+    // Blockchain Persistence
+    public void saveBlockchainState() {
+        blockchainPersistence.saveBlockchain(blockchain);
+        auditLog.logEvent("Blockchain state saved to database");
     }
     
-    public void loadBlockchain() {
-        try {
-            Blockchain loadedChain = BlockchainPersistence.loadBlockchain("blockchain.dat");
-            if (loadedChain != null) {
-                // Copy the loaded chain's properties to our blockchain instance
-                java.lang.reflect.Field chainField = Blockchain.class.getDeclaredField("chain");
-                chainField.setAccessible(true);
-                chainField.set(blockchain, loadedChain.getChain());
-                
-                java.lang.reflect.Field pendingTransactionsField = Blockchain.class.getDeclaredField("pendingTransactions");
-                pendingTransactionsField.setAccessible(true);
-                pendingTransactionsField.set(blockchain, loadedChain.getPendingTransactions());
-                
-                java.lang.reflect.Field difficultyField = Blockchain.class.getDeclaredField("difficulty");
-                difficultyField.setAccessible(true);
-                difficultyField.set(blockchain, loadedChain.getDifficulty());
-                
-                auditLog.logEvent("Blockchain loaded from storage");
-            }
-        } catch (Exception e) {
-            auditLog.logEvent("Failed to load blockchain: " + e.getMessage());
-            throw new VotingException("Failed to load blockchain: " + e.getMessage());
-        }
-    }
-    
-    public List<Election> getAllElections() {
-        return electionManager.getAllElections();
-    }
-    
-    public List<Election> getActiveElections() {
-        return electionManager.getActiveElections();
-    }
-    
-    public Optional<Election> getElection(String electionId) {
-        return electionManager.getElection(electionId);
-    }
-    
-    public List<Candidate> getCandidatesForElection(String electionId) {
-        return candidateService.getCandidatesForElection(electionId);
-    }
-    
-    public Optional<Candidate> getCandidate(String candidateId) {
-        return candidateService.getCandidate(candidateId);
-    }
-    
-    public boolean isVoterEligible(String electionId, String voterId) {
-        return electionManager.isVoterEligible(electionId, voterId);
-    }
-    
-    public boolean hasVoterVoted(String electionId, String voterId) {
-        return electionManager.hasVoterVoted(electionId, voterId);
+    public void shutdown() {
+        saveBlockchainState();
+        auditLog.logEvent("VotingSystem shutdown complete");
     }
     
     // Getters
@@ -266,15 +250,4 @@ public class VotingSystem {
     public AuditLog getAuditLog() {
         return auditLog;
     }
-    
-    public boolean validateBlockchain() {
-        return blockchain.isChainValid();
-    }
-    
-    public void mineBlockchain() {
-        blockchain.minePendingTransactions();
-        saveBlockchain();
-        auditLog.logEvent("Blockchain mined and saved");
-    }
 }
-

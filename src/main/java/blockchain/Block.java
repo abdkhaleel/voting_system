@@ -18,7 +18,8 @@ public class Block implements Serializable {
     private String merkleRoot;
     private String hash;
     private int nonce;
-
+    
+    // Constructor for creating a new block
     public Block(int index, String previousHash) {
         this.index = index;
         this.timestamp = Instant.now().getEpochSecond();
@@ -28,7 +29,16 @@ public class Block implements Serializable {
         this.merkleRoot = calculateMerkleRoot();
         this.hash = calculateHash();
     }
-
+    
+    public Block(int index, long timestamp, String previousHash, String merkleRoot, String hash, int nonce) {
+        this.index = index;
+        this.timestamp = timestamp;
+        this.previousHash = previousHash;
+        this.transactions = new ArrayList<>();
+        this.merkleRoot = merkleRoot;
+        this.hash = hash;
+        this.nonce = nonce;
+    }
     public String calculateHash() {
         try {
             String dataToHash = index + timestamp + previousHash + merkleRoot + nonce;
@@ -133,5 +143,16 @@ public class Block implements Serializable {
 
     public String getMerkleRoot() {
         return merkleRoot;
+    }
+    public void setMerkleRoot(String merkleRoot) {
+        this.merkleRoot = merkleRoot;
+    }
+    
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+    
+    public void setNonce(int nonce) {
+        this.nonce = nonce;
     }
 }
