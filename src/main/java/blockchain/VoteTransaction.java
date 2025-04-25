@@ -26,7 +26,7 @@ public class VoteTransaction implements Transaction {
         this.transactionId = calculateHash();
     }
 
-    private String calculateHash() {
+    public String calculateHash() {
         try {
             String data = voterId + electionId + candidateId + timestamp;
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

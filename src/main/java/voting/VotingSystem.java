@@ -2,6 +2,7 @@ package voting;
 
 import blockchain.*;
 import user.User;
+import java.util.*;
 import user.CryptoUtils;
 import user.DatabaseService;
 import exception.VotingException;
@@ -17,6 +18,8 @@ public class VotingSystem {
     private final AuditLog auditLog;
     private final CandidateService candidateService;
     private final BlockchainPersistence blockchainPersistence;
+    private final ElectionResultsRepository resultsRepository;
+    private final VoteRepository voteRepository;
     
     public VotingSystem(DatabaseService dbService) {
         this.auditLog = new AuditLog();
@@ -24,9 +27,83 @@ public class VotingSystem {
         this.blockchainPersistence = new BlockchainPersistence(dbService);
         this.blockchain = blockchainPersistence.loadBlockchain();
         this.candidateService = new CandidateService(dbService);
+        this.voteRepository = new VoteRepository(dbService, auditLog);
+        this.resultsRepository = new ElectionResultsRepository(dbService, auditLog);
         
-        auditLog.logEvent("VotingSystem initialized with database-backed blockchain");
+        // Set the vote repository in blockchain persistence
+        this.blockchainPersistence.setVoteRepository(this.voteRepository);
+        
+        auditLog.logEvent("VotingSystem initialized with database-backed blockchain and vote storage");
     }
+    
+    /**
+     * Gets detailed voting statistics for an election
+     */
+    public Map<String, Object> getElectionStatistics(String electionId) {
+        Map<String, Object> statistics = new HashMap<>();
+        
+        // Get the election
+        Optional<Election> electionOpt = electionManager.getElection(electionId);
+        if (electionOpt.isEmpty()) {
+            throw new VotingException("Election not found: " + electionId);
+        }
+        
+        Election election = electionOpt.get();
+        
+        // Basic election info
+        statistics.put("electionId", election.getId());
+        statistics.put("title", election.getTitle());
+        statistics.put("startDate", election.getStartDate());
+        statistics.put("endDate", election.getEndDate());
+        statistics.put("active", election.isActive());
+        
+        // Voter statistics
+        statistics.put("eligibleVoterCount", election.getEligibleVoterIds().size());
+        statistics.put("votedVoterCount", election.getVotedVoterIds().size());
+        
+        double turnoutPercentage = 0;
+        if (election.getEligibleVoterIds().size() > 0) {
+            turnoutPercentage = (election.getVotedVoterIds().size() * 100.0) / election.getEligibleVoterIds().size();
+        }
+        statistics.put("turnoutPercentage", turnoutPercentage);
+        
+        // Get results
+        ElectionResults results = getElectionResults(electionId);
+        
+        // Candidate statistics
+        List<Map<String, Object>> candidateStats = new ArrayList<>();
+        for (Candidate candidate : election.getCandidates()) {
+            Map<String, Object> candidateStat = new HashMap<>();
+            candidateStat.put("id", candidate.getId());
+            candidateStat.put("name", candidate.getName());
+            candidateStat.put("party", candidate.getParty());
+            candidateStat.put("voteCount", results.getVoteCount(candidate.getId()));
+            candidateStat.put("votePercentage", results.getVotePercentages().getOrDefault(candidate.getId(), 0.0));
+            candidateStats.add(candidateStat);
+        }
+        statistics.put("candidateStats", candidateStats);
+        
+        // Winner information
+        Candidate winner = results.getWinningCandidate();
+        if (winner != null) {
+            Map<String, Object> winnerInfo = new HashMap<>();
+            winnerInfo.put("id", winner.getId());
+            winnerInfo.put("name", winner.getName());
+            winnerInfo.put("party", winner.getParty());
+            winnerInfo.put("voteCount", results.getVoteCount(winner.getId()));
+            winnerInfo.put("votePercentage", results.getVotePercentages().getOrDefault(winner.getId(), 0.0));
+            statistics.put("winner", winnerInfo);
+        }
+        
+        // Total votes
+        statistics.put("totalVotes", results.getTotalVotes());
+        
+        // Results generation time
+        statistics.put("resultsGeneratedAt", results.getGeneratedAt());
+        
+        return statistics;
+    }
+
     
     // Election Management
     public Election createElection(String title, String description, LocalDateTime startDate, LocalDateTime endDate) {
@@ -159,22 +236,64 @@ public class VotingSystem {
         // Mark voter as having voted
         electionManager.markVoterAsVoted(electionId, voter.getId());
         
+        // Store vote in database (without block hash since it's not mined yet)
+        voteRepository.saveVote(voteTransaction, null);
+        
         // Mine pending transactions if there are enough
         if (blockchain.getPendingTransactions().size() >= 5) {
+            // Get the current chain size before mining
+            int chainSizeBefore = blockchain.getChain().size();
+            
+            // Mine pending transactions
             blockchain.minePendingTransactions();
+            
+            // Check if a new block was added
+            if (blockchain.getChain().size() > chainSizeBefore) {
+                // Get the newly added block
+                Block newBlock = blockchain.getChain().get(blockchain.getChain().size() - 1);
+                
+                // Update vote records with block hash
+                for (Transaction tx : newBlock.getTransactions()) {
+                    if (tx instanceof VoteTransaction) {
+                        VoteTransaction voteTx = (VoteTransaction) tx;
+                        voteRepository.saveVote(voteTx, newBlock.getHash());
+                    }
+                }
+            }
+            
             // Save blockchain after mining
             saveBlockchainState();
         }
+
         
         // Log the vote
         auditLog.logEvent("Vote cast by voter: " + voter.getId() + " in election: " + electionId);
         
+        // Generate and save updated election results
+        ElectionResults results = generateElectionResults(electionId);
+        resultsRepository.saveElectionResults(results);
+        
         // Save the blockchain state after adding the transaction
         saveBlockchainState();
     }
-    
-    // Results and Blockchain Management
     public ElectionResults getElectionResults(String electionId) {
+        // Try to get results from database first
+        Optional<ElectionResults> storedResults = resultsRepository.getElectionResults(electionId, electionManager);
+        
+        if (storedResults.isPresent()) {
+            return storedResults.get();
+        }
+        
+        // If no stored results, generate them from blockchain
+        ElectionResults results = generateElectionResults(electionId);
+        
+        // Save the generated results
+        resultsRepository.saveElectionResults(results);
+        
+        return results;
+    }
+    
+    private ElectionResults generateElectionResults(String electionId) {
         // Check if election exists
         Optional<Election> electionOpt = electionManager.getElection(electionId);
         
@@ -217,11 +336,75 @@ public class VotingSystem {
         return results;
     }
     
+    // Results and Blockchain Management
+//    public ElectionResults getElectionResults(String electionId) {
+//        // Check if election exists
+//        Optional<Election> electionOpt = electionManager.getElection(electionId);
+//        
+//        if (electionOpt.isEmpty()) {
+//            throw new VotingException("Election not found: " + electionId);
+//        }
+//        
+//        Election election = electionOpt.get();
+//        
+//        // Create election results
+//        ElectionResults results = new ElectionResults(election);
+//        
+//        // Count votes from blockchain
+//        List<Block> blocks = blockchain.getChain();
+//        
+//        for (Block block : blocks) {
+//            for (Transaction transaction : block.getTransactions()) {
+//                if (transaction instanceof VoteTransaction) {
+//                    VoteTransaction voteTransaction = (VoteTransaction) transaction;
+//                    
+//                    if (voteTransaction.getElectionId().equals(electionId)) {
+//                        results.countVote(voteTransaction.getCandidateId());
+//                    }
+//                }
+//            }
+//        }
+//        
+//        // Also count votes from pending transactions
+//        for (Transaction transaction : blockchain.getPendingTransactions()) {
+//            if (transaction instanceof VoteTransaction) {
+//                VoteTransaction voteTransaction = (VoteTransaction) transaction;
+//                
+//                if (voteTransaction.getElectionId().equals(electionId)) {
+//                    results.countVote(voteTransaction.getCandidateId());
+//                }
+//            }
+//        }
+//        
+//        auditLog.logEvent("Election results generated for: " + electionId);
+//        return results;
+//    }
+    
     public void mineBlockchain() {
+        // Get the current chain size before mining
+        int chainSizeBefore = blockchain.getChain().size();
+        
+        // Mine pending transactions
         blockchain.minePendingTransactions();
+        
+        // Check if a new block was added
+        if (blockchain.getChain().size() > chainSizeBefore) {
+            // Get the newly added block
+            Block newBlock = blockchain.getChain().get(blockchain.getChain().size() - 1);
+            
+            // Update vote records with block hash
+            for (Transaction tx : newBlock.getTransactions()) {
+                if (tx instanceof VoteTransaction) {
+                    VoteTransaction voteTx = (VoteTransaction) tx;
+                    voteRepository.saveVote(voteTx, newBlock.getHash());
+                }
+            }
+        }
+        
         saveBlockchainState();
         auditLog.logEvent("Blockchain mined and saved");
     }
+
     
     public boolean validateBlockchain() {
         return blockchain.isChainValid();
@@ -249,5 +432,13 @@ public class VotingSystem {
     
     public AuditLog getAuditLog() {
         return auditLog;
+    }
+    
+    public List<VoteTransaction> getVotesForElection(String electionId) {
+        return voteRepository.getVotesForElection(electionId);
+    }
+    
+    public int getVoteCountForCandidate(String electionId, String candidateId) {
+        return voteRepository.getVoteCountForCandidate(electionId, candidateId);
     }
 }

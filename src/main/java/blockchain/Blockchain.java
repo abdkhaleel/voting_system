@@ -64,6 +64,7 @@ public class Blockchain implements Serializable {
         // Clear pending transactions
         pendingTransactions = new ArrayList<>();
     }
+    
 
     public boolean isChainValid() {
         for (int i = 1; i < chain.size(); i++) {

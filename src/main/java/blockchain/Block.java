@@ -155,4 +155,10 @@ public class Block implements Serializable {
     public void setNonce(int nonce) {
         this.nonce = nonce;
     }
+
+	public int getNonce() {
+		return nonce;
+	}
+
+	
 }
