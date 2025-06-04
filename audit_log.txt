@@ -135,3 +135,6 @@
 [2025-06-04 11:43:00] VotingSystem initialized with database-backed blockchain and vote storage
 [2025-06-04 11:43:03] VotingSystem initialized with database-backed blockchain and vote storage
 [2025-06-04 11:43:06] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-05 00:55:51] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-05 00:55:54] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-05 00:55:58] VotingSystem initialized with database-backed blockchain and vote storage
