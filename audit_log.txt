@@ -51,3 +51,87 @@
 [2025-04-21 18:54:56] Voter f05a5145-6a14-4e64-a108-9127dce67f03 marked as voted in election 948c5c57-4d80-4fb8-ace8-40c3f23735ec
 [2025-04-21 18:54:56] Vote cast by voter: f05a5145-6a14-4e64-a108-9127dce67f03 in election: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
 [2025-04-21 18:57:19] Election results generated for: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-05-04 09:19:47] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-05-04 09:19:50] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-05-04 09:19:57] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-05-04 10:03:33] Election created: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:03:33] Election created: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:05:37] Election activated: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:05:37] Election activated: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:09:14] Candidate added to election: 1f213a9b-bef1-4706-8630-f82550e29b5a
+[2025-05-04 10:09:28] Candidate added to election: 2bc3649f-ce7e-4409-8fee-eccf502ba250
+[2025-05-04 10:09:40] Candidate added to election: 33c86fb1-b019-42f3-b8cf-6f8b5e65fc8b
+[2025-05-04 10:16:02] Voter f05a5145-6a14-4e64-a108-9127dce67f03 added as eligible for election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:16:02] Voter added to election: f05a5145-6a14-4e64-a108-9127dce67f03
+[2025-05-04 10:16:25] Voter 18a68817-a76e-449c-913c-19c42578bd4a added as eligible for election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:16:25] Voter added to election: 18a68817-a76e-449c-913c-19c42578bd4a
+[2025-05-04 10:16:47] Voter test-user-id added as eligible for election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:16:47] Voter added to election: test-user-id
+[2025-05-04 10:18:32] Election results generated for: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:18:32] Election results saved to database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:20:38] Blockchain state saved to database
+[2025-05-04 10:20:38] Blockchain mined and saved
+[2025-05-04 10:23:16] Voter test-user-id marked as voted in election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:23:16] Vote recorded in database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:23:16] Vote cast by voter: test-user-id in election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:23:16] Election results generated for: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:23:16] Election results saved to database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:23:17] Blockchain state saved to database
+[2025-05-04 10:24:02] Voter f05a5145-6a14-4e64-a108-9127dce67f03 marked as voted in election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:24:02] Vote recorded in database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:24:02] Vote cast by voter: f05a5145-6a14-4e64-a108-9127dce67f03 in election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:24:02] Election results generated for: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:24:02] Election results saved to database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:25:08] Voter 18a68817-a76e-449c-913c-19c42578bd4a marked as voted in election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:25:09] Vote recorded in database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:25:09] Vote cast by voter: 18a68817-a76e-449c-913c-19c42578bd4a in election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:25:09] Election results generated for: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:25:09] Election results saved to database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:34:57] Election results generated for: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-05-04 10:34:57] Election results saved to database for election: 948c5c57-4d80-4fb8-ace8-40c3f23735ec
+[2025-05-04 10:35:43] Voter 5d70ff7d-d7f8-4115-85d8-ae641b6b7fd4 added as eligible for election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:35:43] Voter added to election: 5d70ff7d-d7f8-4115-85d8-ae641b6b7fd4
+[2025-05-04 10:35:54] Voter aa7ad9fc-3d81-45c8-b65a-81a356d6319b added as eligible for election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:35:54] Voter added to election: aa7ad9fc-3d81-45c8-b65a-81a356d6319b
+[2025-05-04 10:37:47] Voter 5d70ff7d-d7f8-4115-85d8-ae641b6b7fd4 marked as voted in election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:37:47] Vote recorded in database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:37:47] Vote cast by voter: 5d70ff7d-d7f8-4115-85d8-ae641b6b7fd4 in election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:37:47] Election results generated for: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:37:47] Election results saved to database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:38:41] Voter aa7ad9fc-3d81-45c8-b65a-81a356d6319b marked as voted in election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:38:41] Vote recorded in database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:43:31] Voter 38f47ffe-e97f-48ba-a41f-9581b2262d37 added as eligible for election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:43:31] Voter added to election: 38f47ffe-e97f-48ba-a41f-9581b2262d37
+[2025-05-04 10:44:10] Voter 38f47ffe-e97f-48ba-a41f-9581b2262d37 marked as voted in election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:44:10] Vote recorded in database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:47:43] Voter 55daa10a-f832-47b2-8518-a8ff45269657 added as eligible for election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:47:43] Voter added to election: 55daa10a-f832-47b2-8518-a8ff45269657
+[2025-05-04 10:48:35] Voter 55daa10a-f832-47b2-8518-a8ff45269657 marked as voted in election 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-05-04 10:48:35] Vote recorded in database for election: 749210ca-b9c9-45a7-b2f7-53a8a9ea67ce
+[2025-06-04 09:07:44] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 09:07:46] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 09:07:48] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 09:09:48] Blockchain state saved to database
+[2025-06-04 09:10:58] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 09:10:59] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 09:11:01] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:29:08] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:29:10] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:29:12] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:33:39] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:33:39] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:33:41] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:44:21] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:44:22] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:44:24] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:48:54] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:48:56] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:50:21] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:50:21] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 10:50:22] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 11:41:04] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 11:41:08] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 11:41:10] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 11:43:00] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 11:43:03] VotingSystem initialized with database-backed blockchain and vote storage
+[2025-06-04 11:43:06] VotingSystem initialized with database-backed blockchain and vote storage
